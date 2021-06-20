@@ -1,3 +1,4 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
 <script src="<?php echo __HOSTNAME__; ?>/plugins/printThis/printThis.js"></script>
 <script type="text/javascript">
 	$(function(){
@@ -7,6 +8,7 @@
 		var currentAntrianUID = "";
 		var currentAntrianPasien = "";
         $(".sep").select2();
+        var selectedSKDP = "";
 
         $("#txt_bpjs_tanggal_rujukan").datepicker({
             dateFormat: "DD, dd MM yy",
@@ -233,42 +235,47 @@
                                 "<button id=\"pasien_pulang_" + row.uid + "\" class=\"btn btn-success btn-sm btn-pasien-pulang\">" +
                                 "<i class=\"fa fa-check\"></i> Selesai" +
                                 "</button>" +
+                                "<button id=\"batalkan_kunjungan_" + row.uid + "\" class=\"btn btn-danger btn-sm btn-pasien-batal\">" +
+                                "<i class=\"fa fa-times-circle\"></i>" +
+                                "</button>" +
                                 "<div class=\"btn-group\">" +
                                 "<button type=\"button\" class=\"btn btn-info dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                                 "<i class=\"fa fa-print\"></i> Cetak" +
                                 "</button>" +
                                 "<div class=\"dropdown-menu\">" +
-                                "<a id=\"cetak_sep_" + row.sep_uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"SEP\" href=\"#\">BPJS - SEP</a>" +
-                                "<a id=\"cetak_kartu_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"kartu\" href=\"#\">Kartu Pasien</a>" +
-                                "<a id=\"cetak_lab_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"lab\" href=\"#\">Label Laboratorium</a>" +
-                                "<a id=\"cetak_tracer_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"tracer\" href=\"#\">Tracer</a>" +
-                                "<a id=\"cetak_spbk_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"spbk\" href=\"#\">SPBK</a>" +
-                                "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"sosial\" href=\"#\">Data Sosial Pasien</a>" +
-                                "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"gelang\" href=\"#\">Gelang Pasien</a>" +
-                                "<a id=\"cetak_bayi_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"bayi\" href=\"#\">Gelang Pasien Bayi</a>" +
-                                "<a id=\"cetak_identitas_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"idenftitas\" href=\"#\">Identitas Pasien</a>" +
+                                    "<a id=\"cetak_sep_" + row.sep_uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"SEP\" href=\"#\">BPJS - SEP</a>" +
+                                    "<a id=\"cetak_kartu_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"kartu\" href=\"#\">Kartu Pasien</a>" +
+                                    "<a id=\"cetak_lab_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"lab\" href=\"#\">Label Laboratorium</a>" +
+                                    "<a id=\"cetak_tracer_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"tracer\" href=\"#\">Tracer</a>" +
+                                    "<a id=\"cetak_spbk_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"spbk\" href=\"#\">SPBK</a>" +
+                                    "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"sosial\" href=\"#\">Data Sosial Pasien</a>" +
+                                    "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"gelang\" href=\"#\">Gelang Pasien</a>" +
+                                    "<a id=\"cetak_bayi_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"bayi\" href=\"#\">Gelang Pasien Bayi</a>" +
+                                    "<a id=\"cetak_identitas_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"identitas\" href=\"#\">Identitas Pasien</a>" +
                                 "</div>" +
                                 "</div>" +
-
                                 "</div>";
                         } else {
                             return "<div class=\"btn-group wrap_content\" role=\"group\" aria-label=\"Basic example\">" +
                                 "<button id=\"pasien_pulang_" + row.uid + "\" class=\"btn btn-success btn-sm btn-pasien-pulang\">" +
                                 "<i class=\"fa fa-check\"></i> Selesai" +
                                 "</button>" +
+                                "<button id=\"batalkan_kunjungan_" + row.uid + "\" class=\"btn btn-danger btn-sm btn-pasien-batal\">" +
+                                "<i class=\"fa fa-times-circle\"></i>" +
+                                "</button>" +
                                 "<div class=\"btn-group\">" +
                                 "<button type=\"button\" class=\"btn btn-info dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                                 "<i class=\"fa fa-print\"></i> Cetak" +
                                 "</button>" +
                                 "<div class=\"dropdown-menu\">" +
-                                "<a id=\"cetak_kartu_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"kartu\" href=\"#\">Kartu Pasien</a>" +
-                                "<a id=\"cetak_lab_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"lab\" href=\"#\">Label Laboratorium</a>" +
-                                "<a id=\"cetak_tracer_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"tracer\" href=\"#\">Tracer</a>" +
-                                "<a id=\"cetak_spbk_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"spbk\" href=\"#\">SPBK</a>" +
-                                "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"sosial\" href=\"#\">Data Sosial Pasien</a>" +
-                                "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"gelang\" href=\"#\">Gelang Pasien</a>" +
-                                "<a id=\"cetak_bayi_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"bayi\" href=\"#\">Gelang Pasien Bayi</a>" +
-                                "<a id=\"cetak_identitas_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"idenftitas\" href=\"#\">Identitas Pasien</a>" +
+                                    "<a id=\"cetak_kartu_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"kartu\" href=\"#\">Kartu Pasien</a>" +
+                                    "<a id=\"cetak_lab_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"lab\" href=\"#\">Label Laboratorium</a>" +
+                                    "<a id=\"cetak_tracer_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"tracer\" href=\"#\">Tracer</a>" +
+                                    "<a id=\"cetak_spbk_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"spbk\" href=\"#\">SPBK</a>" +
+                                    "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"sosial\" href=\"#\">Data Sosial Pasien</a>" +
+                                    "<a id=\"cetak_gelang_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"gelang\" href=\"#\">Gelang Pasien</a>" +
+                                    "<a id=\"cetak_bayi_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"bayi\" href=\"#\">Gelang Pasien Bayi</a>" +
+                                    "<a id=\"cetak_identitas_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" class=\"dropdown-item print_manager\" jenis=\"identitas\" href=\"#\">Identitas Pasien</a>" +
                                 "</div>" +
                                 "</div>" +
                                 /*"<button id=\"cetak_" + row.uid + "\" pasien=\"" + row.uid_pasien + "\" jenis=\"gelang\" class=\"btn btn-info print_manager\"><i class=\"fa fa-print\"></i></button>" +
@@ -287,6 +294,52 @@
 				}
 			]
 		});
+
+		$("body").on("click", ".btn-pasien-batal", function () {
+		    var id = $(this).attr("id").split("_");
+		    id = id[id.length - 1];
+
+
+            Swal.fire({
+                title: "Pasien batal berobat?",
+                showDenyButton: true,
+                confirmButtonText: "Ya",
+                denyButtonText: "Tidak",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        async: false,
+                        url:__HOSTAPI__ + "/Antrian",
+                        type: "POST",
+                        data: {
+                            request: "pulangkan_pasien",
+                            uid: id
+                        },
+                        beforeSend: function(request) {
+                            request.setRequestHeader("Authorization", "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>);
+                        },
+                        success: function(response){
+                            if(response.response_package.response_result > 0) {
+                                tableAntrian.ajax.reload();
+                                tableAntrianRI.ajax.reload();
+                                tableAntrianIGD.ajax.reload();
+                            } else {
+                                Swal.fire(
+                                    "Pulangkan pasien",
+                                    "Pasien gagal dipulangkan",
+                                    "error"
+                                ).then((result) => {
+                                    //
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            console.log(response);
+                        }
+                    });
+                }
+            });
+        });
 
 
 
@@ -1661,17 +1714,24 @@
                 type: "POST",
                 data: {
                     __PC_CUSTOMER__: __PC_CUSTOMER__,
+                    skdp: selectedSKDP,
                     html_data_kiri: $("#data_sep_cetak_kiri").html(),
                     html_data_kanan: $("#data_sep_cetak_kanan").html(),
                     html_data_bawah: $("#data_sep_cetak_bawah").html()
                 },
                 success: function (response) {
+
+
+                    /*$(response).find("#bpjs_logo_print").attr({
+                        src: __HOSTNAME__ + "/template/assets/images/bpjs.png"
+                    });*/
                     //$("#dokumen-viewer").html(response);
                     var containerItem = document.createElement("DIV");
                     $(containerItem).html(response);
                     $(containerItem).printThis({
+                        importStyle: true,
                         importCSS: true,
-                        base: false,
+                        base: true,
                         pageTitle: "Cetak SEP",
                         afterPrint: function() {
                             //
@@ -1700,12 +1760,13 @@
                         var dataSEP = response.response_package.response_data[0];
                         $("#sep_nomor").html(dataSEP.sep_no);
                         $("#sep_tanggal").html(dataSEP.sep_tanggal);
-                        $("#sep_spesialis").html((dataSEP.poli_tujuan_detail !== undefined) ? dataSEP.poli_tujuan_detail.kode + " - " + dataSEP.poli_tujuan_detail.nama : "-");
+                        $("#sep_spesialis").html((dataSEP.poli_tujuan_detail !== undefined || dataSEP.poli_tujuan_detail !== null) ? dataSEP.poli_tujuan_detail.kode + " - " + dataSEP.poli_tujuan_detail.nama : "-");
                         $("#sep_faskes_asal").html(dataSEP.asal_rujukan_ppk + " - " + ((dataSEP.asal_rujukan_nama !== undefined && dataSEP.asal_rujukan_nama !== null && dataSEP.asal_rujukan_nama !== "null") ? dataSEP.asal_rujukan_nama : "[TIDAK DITEMUKAN]") + "<b class=\"text-info\">[No. Rujuk: " + dataSEP.asal_rujukan_nomor + "]");
                         $("#sep_diagnosa_awal").html(dataSEP.diagnosa_nama);
                         $("#sep_catatan").html(dataSEP.catatan);
                         $("#sep_kelas_rawat").html(dataSEP.kelas_rawat.nama);
                         $("#sep_jenis_rawat").html((parseInt(dataSEP.pelayanan_jenis) === 1) ? "Rawat Inap" : "Rawat Jalan");
+                        selectedSKDP = dataSEP.skdp_no_surat;
 
 
                         var penjaminList = dataSEP.pasien.history_penjamin;
@@ -1754,6 +1815,8 @@
                     success: function (response) {
                         dataPasien = response.response_package.response_data[0];
                         dataPasien.pc_customer = __PC_CUSTOMER__;
+                        dataPasien.pc_customer_address_short = __PC_CUSTOMER_ADDRESS_SHORT__;
+                        dataPasien.pc_customer_address = __PC_CUSTOMER_ADDRESS__;
                         dataPasien.pc_dokter = $("#dokter_" + uid).html();
                         dataPasien.waktu_masuk = $("#waktu_masuk_" + uid).html();
 

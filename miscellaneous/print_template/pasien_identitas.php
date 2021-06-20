@@ -6,7 +6,11 @@
                 size:7.5cm 4cm;
                 margin:0;
                 padding:0;
+                font-size: .8rem;
             }
+        }
+        * {
+            background: #fff !important;
         }
         body{
             margin:auto 0px;
@@ -15,6 +19,17 @@
             font-size: 0.8rem;
             text-align:center;
             padding:5px;
+        }
+        table tr td {
+            vertical-align: top;
+        }
+
+        table tr td:nth-child(1) {
+            text-align: right;
+        }
+
+        table tr td:nth-child(2) {
+            font-weight: bold !important;
         }
 
         hr{
@@ -26,17 +41,17 @@
 <div align="center">
     <table style='width:100%;border-collapse:collapse; background:#fff; font-size:1.1rem; margin-top: 10%;'>
         <tr>
-            <td width="40%">No. RM</td>
+            <td width="25%">No. RM</td>
             <td> : </td>
             <td width="70%"><span style="padding-left: 5%;"><?php echo $_POST['no_rm'];?></span></td>
         </tr>
         <tr>
-            <td width="40%">Nama</td>
+            <td width="25%">Nama</td>
             <td> : </td>
-            <td width="70%"><span style="padding-left: 5%;"><?php echo $_POST['nama_panggilan'].". ".$_POST['nama'];?></span></td>
+            <td width="70%"><span style="margin-left: 5%;"><?php echo (isset($_POST['nama_panggilan'])) ? $_POST['nama_panggilan'] . $_POST['nama'] : $_POST['nama']; ?></span></td>
         </tr>
         <tr>
-            <td width="40%">Tanggal Lahir</td>
+            <td width="25%">Tanggal Lahir</td>
             <td> : </td>
             <td width="70%"><span style="padding-left: 5%;"><?php echo $_POST['tanggal_lahir'];?></span></td>
         </tr>

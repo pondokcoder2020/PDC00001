@@ -1,6 +1,6 @@
 <html>
 <head>
-    <style type='text/css'>
+    <style type='text/css' media="print">
 
         @page {
             size: A5 landscape;
@@ -8,14 +8,19 @@
         }
 
         @media print {
-            @page {
-                size:A5 landscape;
-                padding:0.3cm;
+            @page, body, html {
+                size:A5 landscape !important;
+                padding: .3cm !important;
             }
         }
 
+        * {
+            background: #fff !important;
+        }
+
         body{
-            padding: .3cm;
+            size:A5 landscape !important;
+            padding: .3cm !important;
             color: #000;
             font-family: Courier;
             text-align:center;
@@ -126,18 +131,15 @@
     <table>
         <tr>
             <td style="text-align:center; width:20%">
-                <img width="100%" src="http://<?php echo $_SERVER['SERVER_ADDR'] ?>/simrsv2/client/template/assets/images/bpjs.png" class="logo">
+                <img width="70%" src="http://<?php echo $_SERVER['SERVER_ADDR'] ?>/simrsv2/client/template/assets/images/bpjs.png" class="logo">
             </td>
-            <td style="width:45%;">
+            <td style="width:65%;">
                 <span class="title">
-                    <h2 style="text-align: center">
+                    <h4>
                         SURAT ELEGIBILITAS PESERTA
-                    </h2>
-                </span>
-                <span class="title">
-                    <b>
-                        <center><?php echo $_POST['__PC_CUSTOMER__']; ?></center>
-                    </b>
+                        <!--small style="float: right; width: 200px; background: red; height: 10px;">No. <?php echo $_POST['skdp']; ?></small-->
+                    </h4>
+                    <?php echo $_POST['__PC_CUSTOMER__']; ?>
                 </span>
             </td>
             <td style="width:2%;"></td>

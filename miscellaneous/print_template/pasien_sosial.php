@@ -3,19 +3,21 @@
     <style type='text/css'>
         @media print {
             @page {
+                background: #fff;
                 size:A4;
                 padding:0.3cm;
             }
         }
-        body{
+        html, body{
+            background: #fff;
             margin:auto 0px;
             color: #000;
             font-family: Courier;
-            text-align:center;
         }
 
         .header{
-            padding-bottom:1rem;
+            background: #fff;
+            margin-bottom:1rem;
             border-bottom:1px dashed #F2F2F2;
             text-align:left;
             margin-bottom:1rem;
@@ -81,8 +83,18 @@
             text-align:right;
         }
 
-        .isian{
+        .isian {
             font-size: 1.2rem;
+        }
+        .isian table tbody tr td{
+            vertical-align: top !important;
+        }
+        .isian table tr td:nth-child(1) {
+            text-align: right;
+        }
+
+        .isian table tr td:nth-child(3) {
+            text-align: left !important;
         }
 
         /* .terbilang{
@@ -106,33 +118,31 @@
 
 </head>
 <body>
-<div class="header">
-    <table>
+<div class="header" style="border-bottom: solid 1px #000;">
+    <table style="background: #fff">
         <tr>
             <td style="text-align:center; width:5%">
-                <img src="../client/template/assets/images/logo-icon.png" class="logo">
+                <img src="http://<?php echo $_SERVER['SERVER_ADDR'] ?>/simrsv2/client/template/assets/images/logo-icon.png" class="logo" />
             </td>
             <td style="width:45%;">
                 <span class="title"><b>PEMERINTAH KABUPATEN BINTAN</b></span>
-                <span class="title"><?php echo __PC_CUSTOMER__;?></span>
-                <span class="alamat"><?php echo $_POST['alamat'];?></span>
-                <span class="telepon">Telp. <?php echo $_POST['no_telepon'];?></span>
+                <span class="title"><?php echo $_POST['__PC_CUSTOMER__']; ?></span>
+                <span class="alamat"><?php echo $_POST['__PC_CUSTOMER_ADDRESS__'];?></span>
+                <span class="telepon">Telp. <?php echo $_POST['__PC_CUSTOMER_CONTACT__'];?></span>
             </td>
             <td style="width:2%;"></td>
             <td style="border: 1px solid #000000; padding : 1% 1% 1% 2%">
                 <table class="head">
                     <tr><td>No. RM</td><td>:</td><td><?php echo $_POST['no_rm'];?></td></tr>
-                    <tr><td>Nama Pasien</td><td>:</td><td><?php echo $_POST['nama_panggilan'].". ".$_POST['nama_pasien'];?></td></tr>
+                    <tr><td>Nama Pasien</td><td>:</td><td><?php echo (isset($_POST['nama_panggilan'])) ? $_POST['nama_panggilan'] . ". " . $_POST['nama_pasien'] : $_POST['nama_pasien'];?></td></tr>
                     <tr><td>Tanggal Lahir</td><td>:</td><td><?php echo $_POST['tanggal_lahir'];?></td></tr>
                 </table>
             </td>
         </tr>
     </table>
 </div>
-========================================================================================================
-<span style="padding: 1% 0 1% 0; font-size: 1.5rem;"><b>DATA SOSIAL PASIEN</b></span>
---------------------------------------------------------------------------------------------------------
-<div class="middle" style="">
+<span class="text-center" style="background: #fff; padding: 1% 0 1% 0; font-size: 1.5rem;"><b>DATA SOSIAL PASIEN</b></span>
+<div class="middle" style="background: #fff; border-top: solid 1px #000">
     <table class="isian" cellpadding="8" style="/*border: 1px solid #000000; */padding-left: 10%;">
         <thead>
         <th style="width:25%;"></th>
@@ -148,22 +158,25 @@
         <tr>
             <td>Nama Ayah</td>
             <td>:</td>
-            <td width="20"><b><?= $_POST['ayah']; ?></b></td>
+            <td width="20"><b><?= $_POST['nama_ayah']; ?></b></td>
         </tr>
         <tr>
             <td>Nama Ibu</td>
             <td>:</td>
-            <td width="20"><b><?= $_POST['ibu']; ?></b></td>
+            <td width="20"><b><?= $_POST['nama_ibu']; ?></b></td>
         </tr>
         <tr>
             <td>Nama Suami / Istri</td>
             <td>:</td>
-            <td width="20"><b><?= $_POST['suami_istri']; ?></b></td>
+            <td width="20"><b><?= $_POST['nama_suami_istri']; ?></b></td>
         </tr>
         <tr>
             <td>Alamat Lengkap</td>
             <td>:</td>
-            <td rowspan=""><b><?= $_POST['alamat'] . $_POST['kel'] . $_POST['kec'] . $_POST['kab'] . $_POST['prov']; ?></b></td>
+            <td rowspan=""><b>
+                    <?php
+                    echo $_POST['alamat'] . '<br />' . $_POST['alamat_kelurahan_parse'] . ', ' . $_POST['alamat_kecamatan_parse'] . ', ' . $_POST['alamat_kabupaten_parse'] . ', ' . $_POST['alamat_provinsi_parse'];
+                    ?></b></td>
         </tr>
         <!-- <tr>
             <td>&nbsp;</td>
@@ -176,42 +189,42 @@
         <tr>
             <td>Jenis Kelamin</td>
             <td>:</td>
-            <td><b><?= $_POST['nama_jenkel']; ?></b></td>
+            <td><b><?= (isset($_POST['jenkel_detail']['nama'])) ? $_POST['jenkel_detail']['nama'] : '-'; ?></b></td>
         </tr>
         <tr>
             <td>Status Perkawinan</td>
             <td>:</td>
-            <td><b><?= $_POST['status_kawin']; ?></b></td>
+            <td><b><?= (isset($_POST['nikah_detail']['nama'])) ? $_POST['status_pernikahan']['nama'] : '-'; ?></b></td>
         </tr>
         <tr>
             <td>Agama</td>
             <td>:</td>
-            <td><b><?= $_POST['agama'];?></b></td>
+            <td><b><?= $_POST['agama_detail']['nama'];?></b></td>
         </tr>
         <tr>
             <td>Pekerjaan</td>
             <td>:</td>
-            <td><b><?= $_POST['pekerjaan']; ?></b></td>
+            <td><b><?= (isset($_POST['pekerjaan_detail']['nama'])) ? $_POST['pekerjaan_detail']['nama'] : '-'; ?></b></td>
         </tr>
         <tr>
             <td>Kewarganegaraan</td>
             <td>:</td>
-            <td><b><?= $_POST['warga_negara']; ?></b></td>
+            <td><b><?= (isset($_POST['wn_detail']['nama'])) ? $_POST['wn_detail']['nama'] : '-'; ?></b></td>
         </tr>
         <tr>
             <td>Suku</td>
             <td>:</td>
-            <td><b><?= $_POST['suku']; ?></b></td>
+            <td><b><?= (isset($_POST['suku_detail']['nama'])) ? $_POST['suku_detail']['nama'] : '-'; ?></b></td>
         </tr>
         <tr>
             <td>No. Telp / HP</td>
             <td>:</td>
-            <td><b><?= $_POST['no_handphone']; ?></b></td>
+            <td><b><?= $_POST['no_telp']; ?></b></td>
         </tr>
         <tr>
             <td>Kartu Identitas</td>
             <td>:</td>
-            <td><b><?= $_POST['identitas']; ?></b></td>
+            <td><b><?= $_POST['nik']; ?></b></td>
         </tr>
         <tr>
             <td>Riwayat Alergi Obat</td>
@@ -246,10 +259,10 @@
     <br />
     <span style="font-size:11pt; text-align:left; color: red;"><b>* Jika ada perubahan data sosial akan saya informasikan kepada pihak RS pada kunjungan berikutnya.</b></span>
     <span style="text-align:center;">------------------------------------------------------------------------------------------</span>
-    <span style="font-size:15pt; text-align:right; padding-top: 1%;"><b>Kijang, <?= $_POST['waktu2']; ?> </b></span>
+    <span style="font-size:15pt; text-align:right; padding-top: 1%;"><b><?php echo $_POST['pc_customer_address_short'] ?>, <?php echo date('d F Y'); ?> </b></span>
     <br />
     <br />
-    <table style="text-align: center;" class="isian">
+    <table class="isian">
         <tbody>
         <tr>
             <td>

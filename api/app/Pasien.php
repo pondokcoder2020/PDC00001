@@ -190,13 +190,82 @@ class Pasien extends Utility
             $data['response_data'][$key]['panggilan_name'] = $TerminologiInfo['response_data'][0];
 
 
+
+
+
+
+            $KelurahanInfo = self::$query->select('master_wilayah_kelurahan', array(
+                'nama'
+            ))
+                ->where(array(
+                    'master_wilayah_kelurahan.id' => '= ?'
+                ), array(
+                    $value['alamat_kelurahan']
+                ))
+                ->execute();
+            $data['response_data'][$key]['alamat_kelurahan_parse'] = $KelurahanInfo['response_data'][0]['nama'];
+
+            $KecamatanInfo = self::$query->select('master_wilayah_kecamatan', array(
+                'nama'
+            ))
+                ->where(array(
+                    'master_wilayah_kecamatan.id' => '= ?'
+                ), array(
+                    $value['alamat_kecamatan']
+                ))
+                ->execute();
+            $data['response_data'][$key]['alamat_kecamatan_parse'] = $KecamatanInfo['response_data'][0]['nama'];
+
+            $KabupatenInfo = self::$query->select('master_wilayah_kabupaten', array(
+                'nama'
+            ))
+                ->where(array(
+                    'master_wilayah_kabupaten.id' => '= ?'
+                ), array(
+                    $value['alamat_kabupaten']
+                ))
+                ->execute();
+            $data['response_data'][$key]['alamat_kabupaten_parse'] = $KabupatenInfo['response_data'][0]['nama'];
+
+            $ProvinsiInfo = self::$query->select('master_wilayah_provinsi', array(
+                'nama'
+            ))
+                ->where(array(
+                    'master_wilayah_provinsi.id' => '= ?'
+                ), array(
+                    $value['alamat_provinsi']
+                ))
+                ->execute();
+            $data['response_data'][$key]['alamat_provinsi_parse'] = $ProvinsiInfo['response_data'][0]['nama'];
+
+
             //Jenkel
             $JenkelInfo = $Terminologi->get_terminologi_items_detail('terminologi_item', $value['jenkel']);
             $data['response_data'][$key]['jenkel_detail'] = $JenkelInfo['response_data'][0];
 
+            //Pekerjaan
+            $PekerjaanInfo = $Terminologi->get_terminologi_items_detail('terminologi_item', $value['pekerjaan']);
+            $data['response_data'][$key]['pekerjaan_detail'] = $PekerjaanInfo['response_data'][0];
+
+            //Pendidikan
+            $PendidikanInfo = $Terminologi->get_terminologi_items_detail('terminologi_item', $value['pendidikan']);
+            $data['response_data'][$key]['pendidikan_detail'] = $PendidikanInfo['response_data'][0];
+
             //Agama
             $AgamaInfo = $Terminologi->get_terminologi_items_detail('terminologi_item', $value['agama']);
             $data['response_data'][$key]['agama_detail'] = $AgamaInfo['response_data'][0];
+
+            //Suku
+            $SukuInfo = $Terminologi->get_terminologi_items_detail('terminologi_item', $value['suku']);
+            $data['response_data'][$key]['suku_detail'] = $SukuInfo['response_data'][0];
+
+            //Pernikahan
+            $PernikahanInfo = $Terminologi->get_terminologi_items_detail('terminologi_item', $value['status_pernikahan']);
+            $data['response_data'][$key]['nikah_detail'] = $PernikahanInfo['response_data'][0];
+
+            //Warga Negara
+            $WNInfo = $Terminologi->get_terminologi_items_detail('terminologi_item', $value['warganegara']);
+            $data['response_data'][$key]['wn_detail'] = $WNInfo['response_data'][0];
 
             $data['response_data'][$key]['tanggal_lahir_parsed'] = date('d F Y', strtotime($value['tanggal_lahir']));
 

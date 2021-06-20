@@ -64,6 +64,8 @@
                 },
                 dataSrc: function (response) {
                     var data = response.response_package.response_data;
+                    console.clear();
+                    console.log(data);
 
                     if (data === undefined || data === null) {
                         return [];
@@ -99,6 +101,14 @@
                 },
                 {
                     "data": null, render: function (data, type, row, meta) {
+                        var allowClaim = "";
+                        if(row.claim.length > 0) {
+                            allowClaim = "";
+                        } else {
+                            allowClaim = "<button class=\"btn btn-purple btn-sm btn-buat-claim\" no_sep=\"" + row.sep_no + "\" id=\"sep_buat_claim_" + row.uid + "\">" +
+                                "<i class=\"fa fa-search\"></i> Claim" +
+                                "</button>";
+                        }
                         if(row.claim !== undefined && row.claim !== null) {
                             if(row.claim.length > 0) {
                                 return "<div class=\"btn-group wrap_content\" role=\"group\" aria-label=\"Basic example\">" +
@@ -108,9 +118,7 @@
                                     "<button class=\"btn btn-success btn-sm btn-cetak-sep\" no_sep=\"" + row.sep_no + "\" id=\"sep_cetak_" + row.uid + "\">" +
                                     "<i class=\"fa fa-print\"></i> Cetak" +
                                     "</button>" +
-                                    "<button class=\"btn btn-purple btn-sm btn-detail-claim\" no_sep=\"" + row.sep_no + "\" id=\"sep_buat_claim_" + row.uid + "\">" +
-                                    "<i class=\"fa fa-search\"></i> Claim" +
-                                    "</button>" +
+                                    allowClaim +
                                     "<button disabled class=\"btn btn-danger btnHapusSEP\" id=\"hapus_" + row.sep_no + "\"><i class=\"fa fa-ban\"></i> Hapus</button>" +
                                     "</div>";
                             } else {
@@ -121,9 +129,7 @@
                                     "<button class=\"btn btn-success btn-sm btn-cetak-sep\" no_sep=\"" + row.sep_no + "\" id=\"sep_cetak_" + row.uid + "\">" +
                                     "<i class=\"fa fa-print\"></i> Cetak" +
                                     "</button>" +
-                                    "<button class=\"btn btn-purple btn-sm btn-buat-claim\" no_sep=\"" + row.sep_no + "\" id=\"sep_buat_claim_" + row.uid + "\">" +
-                                    "<i class=\"fa fa-plus-circle\"></i> Claim" +
-                                    "</button>" +
+                                    allowClaim +
                                     "<button class=\"btn btn-danger btnHapusSEP\" id=\"hapus_" + row.sep_no + "\"><i class=\"fa fa-ban\"></i> Hapus</button>" +
                                     "</div>";
                             }
@@ -135,9 +141,7 @@
                                 "<button class=\"btn btn-success btn-sm btn-cetak-sep\" no_sep=\"" + row.sep_no + "\" id=\"sep_cetak_" + row.uid + "\">" +
                                 "<i class=\"fa fa-print\"></i> Cetak" +
                                 "</button>" +
-                                "<button class=\"btn btn-purple btn-sm btn-buat-claim\" no_sep=\"" + row.sep_no + "\" id=\"sep_buat_claim_" + row.uid + "\">" +
-                                "<i class=\"fa fa-plus-circle\"></i> Claim" +
-                                "</button>" +
+                                allowClaim +
                                 "<button class=\"btn btn-danger btnHapusSEP\" id=\"hapus_" + row.sep_no + "\"><i class=\"fa fa-ban\"></i> Hapus</button>" +
                                 "</div>";
                         }
@@ -1223,6 +1227,8 @@
                 }
             });
 
+            alert(dpjp);
+
             if(diagnosa_kode.length > 0 && procedure.length > 0) {
                 Swal.fire({
                     title: "Proses Claim Baru ?",
@@ -1258,9 +1264,24 @@
                             beforeSend: function(request) {
                                 request.setRequestHeader("Authorization", "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>);
                             },
-                            success: function(response){
-                                console.clear();
-                                console.log(response);
+                            success: function(response) {
+                                if(parseInt(response.response_package.bpjs.content.metaData.code) === 200) {
+                                    Swal.fire(
+                                        "BPJS Claim",
+                                        "Claim berhasil dibuat",
+                                        "success"
+                                    ).then((result) => {
+                                        //
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        "BPJS Claim",
+                                        response.response_package.bpjs.content.metaData.message,
+                                        "error"
+                                    ).then((result) => {
+                                        //
+                                    });
+                                }
                             },
                             error: function(response) {
                                 console.log(response);
@@ -1511,7 +1532,51 @@
                             $(selection).attr("value", data[a].kode).html(data[a].nama);
                             $(target).append(selection);
                         }
-                        loadDPJP((target === "txt_bpjs_dpjp_spesialistik") ? "#txt_bpjs_dpjp" : "#claim_dpjp", (target === "txt_bpjs_dpjp_spesialistik") ? $("#txt_bpjs_jenis_asal_rujukan").val() : $("#claim_dirujuk_ke_jenis").val(), $(target).val(), dpjp);
+                        loadDPJP((target === "txt_bpjs_dpjp_spesialistik") ? "#txt_bpjs_dpjp" : "#claim_dpjpz", (target === "txt_bpjs_dpjp_spesialistik") ? $("#txt_bpjs_jenis_asal_rujukan").val() : $("#claim_dirujuk_ke_jenis").val(), $(target).val(), dpjp);
+                        $("#claim_dpjp").select2({
+                            minimumInputLength: 1,
+                            "language": {
+                                "noResults": function(){
+                                    return "Dokter tidak ditemukan";
+                                }
+                            },
+                            dropdownParent: $("#modal-sep-claim"),
+                            ajax: {
+                                dataType: "json",
+                                headers:{
+                                    "Authorization" : "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>,
+                                    "Content-Type" : "application/json",
+                                },
+                                url:__HOSTAPI__ + "/BPJS/get_dpjp_claim",
+                                type: "GET",
+                                data: function (term) {
+                                    return {
+                                        search:term.term
+                                    };
+                                },
+                                cache: true,
+                                processResults: function (response) {
+                                    if(parseInt(response.response_package.content.metaData.code) === 200) {
+                                        var data = response.response_package.content.response.list;
+                                        return {
+                                            results: $.map(data, function (item) {
+                                                return {
+                                                    text: item.nama,
+                                                    id: item.kode
+                                                }
+                                            })
+                                        };
+                                    } else {
+                                        return [];
+                                    }
+                                }
+                            }
+                        }).addClass("form-control").on("select2:select", function(e) {
+                            var id = $(this).attr("id").split("_");
+                            id = id[id.length - 1];
+
+                            autoProcedure();
+                        });
                     }
                 },
                 error: function(response) {
@@ -2286,121 +2351,431 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-6 col-md-6 form-group">
-                        <label for="">Tanggal Masuk</label>
-                        <input type="text" autocomplete="off" class="form-control uppercase" id="claim_tanggal_masuk" />
-                    </div>
-                    <div class="col-6 col-md-6 form-group">
-                        <label for="">Tanggal Keluar</label>
-                        <input type="text" autocomplete="off" class="form-control uppercase" id="claim_tanggal_keluar" />
-                    </div>
-                    <div class="col-4 col-md-6 form-group">
-                        <label for="">Jaminan</label>
-                        <select class="form-control" id="claim_jaminan">
-                            <option value="1">JKN</option>
-                        </select>
-                    </div>
-                    <div class="col-8 col-md-6 form-group">
-                        <label for="">Poli</label>
-                        <select class="form-control" id="claim_poli"></select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-4 col-md-4 form-group">
-                        <label for="">Ruang Rawat</label>
-                        <select class="form-control" id="claim_ruang_rawat"></select>
-                    </div>
-                    <div class="col-4 col-md-4 form-group">
-                        <label for="">Kelas Rawat</label>
-                        <select class="form-control" id="claim_kelas_rawat"></select>
-                    </div>
-                    <div class="col-4 col-md-4 form-group">
-                        <label for="">Spesialistik</label>
-                        <select class="form-control" id="claim_spesialistik"></select>
-                    </div>
-                    <div class="col-6 col-md-4 form-group">
-                        <label for="">Cara Keluar</label>
-                        <select class="form-control" id="claim_cara_keluar"></select>
-                    </div>
-                    <div class="col-6 col-md-4 form-group">
-                        <label for="">Kondisi Pulang</label>
-                        <select class="form-control" id="claim_kondisi_pulang"></select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6 col-md-6">
-                        <h5>Diagnosa <b>[ICD10]</b></h5>
-                        <table class="table table-bordered largeDataType" id="claim_diagnosa">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th class="wrap_content">No</th>
-                                    <th>Diagnosa</th>
-                                    <th style="width: 100px;">Level</th>
-                                    <th class="wrap_content"></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                    <div class="col-6 col-md-6">
-                        <h5>Prosedur <b>[ICD9]</b></h5>
-                        <table class="table table-bordered largeDataType" id="claim_procedure">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th class="wrap_content">No</th>
-                                    <th>Procedure</th>
-                                    <th class="wrap_content"></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-4 col-md-4 form-group">
-                        <label for="">Rencana Tindak Lanjut</label>
-                        <select class="form-control" id="claim_rencana_tl">
-                            <option value="1">Diperbolehkan Pulang</option>
-                            <option value="2">Pemeriksaan Penunjang</option>
-                            <option value="3">Dirujuk Ke</option>
-                            <option value="4">Kontrol Kembali</option>
-                        </select>
-                    </div>
-
-                    <div class="col-4 col-md-4 form-group">
-                        <label for="">Dirujuk Ke</label>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label for="">Jenis Faskes</label>
-                                <select class="form-control uppercase" id="claim_dirujuk_ke_jenis">
-                                    <option value="1">Puskesmas</option>
-                                    <option value="2">Rumah Sakit</option>
-                                </select>
-                                <hr />
+                <div class="form-group col-md-12">
+                    <div class="row card-group-row">
+                        <div class="col-lg-12 col-md-12">
+                            <div class="z-0">
+                                <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                                    <li class="nav-item">
+                                        <a href="#tab-lpk" class="nav-link active" data-toggle="tab" role="tab" aria-selected="true" aria-controls="tab-lpk" >
+                                            <span class="nav-link__count">
+                                                <i class="fa fa-address-book"></i>
+                                            </span>
+                                            LPK
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#tab-pemeriksaan" class="nav-link" data-toggle="tab" role="tab" aria-selected="true" aria-controls="tab-pemeriksaan" >
+                                            <span class="nav-link__count">
+                                                <i class="fa fa-flask"></i>
+                                            </span>
+                                            Hasil Pemeriksaan
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="col-md-12">
-                                <label for="">Faskes</label>
-                                <select class="form-control" id="claim_dirujuk_ke"></select>
+                            <div class="card card-body tab-content">
+                                <div class="tab-pane show fade active" id="tab-lpk">
+                                    <div class="row">
+                                        <div class="col-6 col-md-6 form-group">
+                                            <label for="">Tanggal Masuk</label>
+                                            <input type="text" autocomplete="off" class="form-control uppercase" id="claim_tanggal_masuk" />
+                                        </div>
+                                        <div class="col-6 col-md-6 form-group">
+                                            <label for="">Tanggal Keluar</label>
+                                            <input type="text" autocomplete="off" class="form-control uppercase" id="claim_tanggal_keluar" />
+                                        </div>
+                                        <div class="col-4 col-md-6 form-group">
+                                            <label for="">Jaminan</label>
+                                            <select class="form-control" id="claim_jaminan">
+                                                <option value="1">JKN</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 col-md-6 form-group">
+                                            <label for="">Poli</label>
+                                            <select class="form-control" id="claim_poli"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 col-md-4 form-group">
+                                            <label for="">Ruang Rawat</label>
+                                            <select class="form-control" id="claim_ruang_rawat"></select>
+                                        </div>
+                                        <div class="col-4 col-md-4 form-group">
+                                            <label for="">Kelas Rawat</label>
+                                            <select class="form-control" id="claim_kelas_rawat"></select>
+                                        </div>
+                                        <div class="col-4 col-md-4 form-group">
+                                            <label for="">Spesialistik</label>
+                                            <select class="form-control" id="claim_spesialistik"></select>
+                                        </div>
+                                        <div class="col-6 col-md-4 form-group">
+                                            <label for="">Cara Keluar</label>
+                                            <select class="form-control" id="claim_cara_keluar"></select>
+                                        </div>
+                                        <div class="col-6 col-md-4 form-group">
+                                            <label for="">Kondisi Pulang</label>
+                                            <select class="form-control" id="claim_kondisi_pulang"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 col-md-6">
+                                            <h5>Diagnosa <b>[ICD10]</b></h5>
+                                            <table class="table table-bordered largeDataType" id="claim_diagnosa">
+                                                <thead class="thead-dark">
+                                                <tr>
+                                                    <th class="wrap_content">No</th>
+                                                    <th>Diagnosa</th>
+                                                    <th style="width: 100px;">Level</th>
+                                                    <th class="wrap_content"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-6 col-md-6">
+                                            <h5>Prosedur <b>[ICD9]</b></h5>
+                                            <table class="table table-bordered largeDataType" id="claim_procedure">
+                                                <thead class="thead-dark">
+                                                <tr>
+                                                    <th class="wrap_content">No</th>
+                                                    <th>Procedure</th>
+                                                    <th class="wrap_content"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 col-md-4 form-group">
+                                            <label for="">Rencana Tindak Lanjut</label>
+                                            <select class="form-control" id="claim_rencana_tl">
+                                                <option value="1">Diperbolehkan Pulang</option>
+                                                <option value="2">Pemeriksaan Penunjang</option>
+                                                <option value="3">Dirujuk Ke</option>
+                                                <option value="4">Kontrol Kembali</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-4 col-md-4 form-group">
+                                            <label for="">Dirujuk Ke</label>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <label for="">Jenis Faskes</label>
+                                                    <select class="form-control uppercase" id="claim_dirujuk_ke_jenis">
+                                                        <option value="1">Puskesmas</option>
+                                                        <option value="2">Rumah Sakit</option>
+                                                    </select>
+                                                    <hr />
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label for="">Faskes</label>
+                                                    <select class="form-control" id="claim_dirujuk_ke"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label for="">Kontrol Kembali</label>
+                                                <input type="text" id="claim_tanggal_kontrol" class="form-control uppercase" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Kontrol Poli</label>
+                                                <select class="form-control" id="claim_poli_kontrol"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-5 form-group">
+                                            <label for="">DPJP</label>
+                                            <select class="form-control" id="claim_dpjp"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane show fade" id="tab-pemeriksaan">
+                                    <div class="form-group col-md-12">
+                                        <div class="row card-group-row">
+                                            <div class="col-lg-12 col-md-12">
+                                                <div class="z-0">
+                                                    <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                                                        <li class="nav-item">
+                                                            <a href="#tab-poli-1" class="nav-link active" data-toggle="tab" role="tab" aria-selected="true" aria-controls="tab-poli-1" >
+                                            <span class="nav-link__count">
+                                                <i class="fa fa-address-book"></i>
+                                            </span>
+                                                                CPPT
+                                                            </a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a href="#tab-poli-2" class="nav-link" data-toggle="tab" role="tab" aria-selected="true" aria-controls="tab-poli-1" >
+                                            <span class="nav-link__count">
+                                                <i class="fa fa-flask"></i>
+                                            </span>
+                                                                Hasil Laboratorium
+                                                            </a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a href="#tab-poli-3" class="nav-link" data-toggle="tab" role="tab" aria-selected="true" aria-controls="tab-poli-1" >
+                                            <span class="nav-link__count">
+                                                <i class="fa fa-life-ring"></i>
+                                            </span>
+                                                                Hasil Radiologi
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card card-body tab-content">
+                                                    <div class="tab-pane show fade active" id="tab-poli-1">
+                                                        <div class="card-body">
+                                                            <p class="text-dark-gray d-flex align-items-center mt-3">
+                                                                <i class="material-icons icon-muted mr-2">event</i>
+                                                                <strong id="tanggal_periksa"></strong>
+                                                            </p>
+                                                            <div class="row projects-item mb-1">
+                                                                <div class="col-1">
+                                                                    <br />
+                                                                    <div class="text-dark-gray">Subjective</div>
+                                                                </div>
+                                                                <div class="col-11">
+                                                                    <div class="card">
+                                                                        <div class="card-header card-header-large bg-white">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_keluhan_utama">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Keluhan Utama</strong></a>
+                                                                                        </div>
+                                                                                        <div class="card-body">
+                                                                                            <p class="txt_keluhan_utama">
+
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_keluhan_tambahan">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Keluhan Tambahan</strong></a>
+                                                                                        </div>
+                                                                                        <div class="card-body">
+                                                                                            <p class="txt_keluhan_tambahan">
+
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row projects-item mb-1">
+                                                                <div class="col-1">
+                                                                    <br />
+                                                                    <div class="text-dark-gray">Objective</div>
+                                                                </div>
+                                                                <div class="col-11">
+                                                                    <div class="card">
+                                                                        <div class="card-header card-header-large bg-white">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_keluhan_utama">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Pemeriksaan Fisik</strong></a>
+                                                                                        </div>
+                                                                                        <div class="card-body">
+                                                                                            <p class="txt_pemeriksaan_fisik">
+
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row projects-item mb-1">
+                                                                <div class="col-1">
+                                                                    <br />
+                                                                    <div class="text-dark-gray">Asesmen</div>
+                                                                </div>
+                                                                <div class="col-11">
+                                                                    <div class="card">
+                                                                        <div class="card-header card-header-large bg-white">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_diagnosa_utama">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Diagnosa Kerja</strong></a>
+                                                                                        </div>
+                                                                                        <div class="card-body">
+                                                                                            <p class="txt_diagnosa_kerja">
+
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_diagnosa_banding">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Diagnosa Banding</strong></a>
+                                                                                        </div>
+                                                                                        <div class="card-body">
+                                                                                            <p class="txt_diagnosa_banding">
+
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row projects-item mb-1">
+                                                                <div class="col-1">
+                                                                    <br />
+                                                                    <div class="text-dark-gray">Planning</div>
+                                                                </div>
+                                                                <div class="col-11">
+                                                                    <div class="card">
+                                                                        <div class="card-header card-header-large bg-white">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_keluhan_utama">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Planning</strong></a>
+                                                                                        </div>
+                                                                                        <div class="card-body">
+                                                                                            <p class="txt_planning">
+
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row projects-item mb-1">
+                                                                <div class="col-1">
+                                                                    <br />
+                                                                    <div class="text-dark-gray">Resep & Racikan</div>
+                                                                </div>
+                                                                <div class="col-11">
+                                                                    <div class="card">
+                                                                        <div class="card-header card-header-large bg-white">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_resep">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Resep Dokter</strong></a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="card-body">
+                                                                                        <table class="table table-bordered resepDokterCPPT largeDataType">
+                                                                                            <thead class="thead-dark">
+                                                                                            <tr>
+                                                                                                <th class="wrap_content">No</th>
+                                                                                                <th>Obat</th>
+                                                                                                <th>Signa</th>
+                                                                                                <th>Jlh</th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody></tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_resep">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Resep Apotek</strong></a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="card-body">
+                                                                                        <table class="table table-bordered resepApotekCPPT largeDataType">
+                                                                                            <thead class="thead-dark">
+                                                                                            <tr>
+                                                                                                <th class="wrap_content">No</th>
+                                                                                                <th>Obat</th>
+                                                                                                <th>Signa</th>
+                                                                                                <th>Jlh</th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody></tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="card-header card-header-large bg-white">
+                                                                            <div class="row">
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_racikan">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Racikan Dokter</strong></a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="card-body">
+                                                                                        <table class="table table-bordered racikanDokterCPPT largeDataType">
+                                                                                            <thead class="thead-dark">
+                                                                                            <tr>
+                                                                                                <th class="wrap_content">No</th>
+                                                                                                <th>Racikan</th>
+                                                                                                <th>Komposisi</th>
+                                                                                                <th>Signa</th>
+                                                                                                <th>Jlh</th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody></tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <div class="segmen_racikan">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <a href="#" class="text-body"><strong class="text-15pt mr-2"><i class="fa fa-hashtag"></i> Racikan Apotek</strong></a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="card-body">
+                                                                                        <table class="table table-bordered racikanApotekCPPT largeDataType">
+                                                                                            <thead class="thead-dark">
+                                                                                            <tr>
+                                                                                                <th class="wrap_content">No</th>
+                                                                                                <th>Racikan</th>
+                                                                                                <th>Komposisi</th>
+                                                                                                <th>Signa</th>
+                                                                                                <th>Jlh</th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody></tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane show fade" id="tab-poli-2">
+                                                        <div class="row lab_loader"></div>
+                                                    </div>
+                                                    <div class="tab-pane show fade" id="tab-poli-3">
+                                                        <div class="row rad_loader"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-4">
-                        <div class="form-group">
-                            <label for="">Kontrol Kembali</label>
-                            <input type="text" id="claim_tanggal_kontrol" class="form-control uppercase" />
-                        </div>
-                        <div class="form-group">
-                            <label for="">Kontrol Poli</label>
-                            <select class="form-control" id="claim_poli_kontrol"></select>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-5 form-group">
-                        <label for="">DPJP</label>
-                        <select class="form-control" id="claim_dpjp"></select>
                     </div>
                 </div>
             </div>

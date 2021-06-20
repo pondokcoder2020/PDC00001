@@ -3,10 +3,14 @@
     <style type='text/css'>
         @media print {
             @page {
+                font-size: 10pt;
                 size:15.24cm 1.9cm;
                 margin:0;
                 padding:0;
             }
+        }
+        * {
+            background: #fff !important;
         }
         body{
             margin:auto 0px;
@@ -23,13 +27,12 @@
     </style>
 </head>
 <body>
-<b><?php echo __PC_CUSTOMER__;?></b>
-<hr>
+<b><?php echo $_POST['pc_customer'];?></b>
 <center style="display: block;">
-    <table style='width:30%;border-collapse:collapse; background:#fff; font-size:0.8rem;'>
+    <table style='width:50%;border-collapse:collapse; background:#fff; font-size:0.6rem;'>
         <tr>
             <td width="50%"><?php echo $_POST['no_rm'];?></td>
-            <td width="100%"><?php echo $_POST['panggilan_name']['nama'] . ". " . $_POST['nama']; ?></td>
+            <td width="100%"><?php echo (isset($_POST['panggilan_name']['nama'])) ? $_POST['panggilan_name']['nama'] . $_POST['nama'] : $_POST['nama']; ?></td>
         </tr>
         <tr>
             <td><?php echo date('d F Y', strtotime($_POST['tanggal_lahir']));?></td>

@@ -10,7 +10,9 @@
     var __CURRENT_DATE__ = <?php echo json_encode(date('Y-m-d')); ?>;
     var __PC_CUSTOMER__ = <?php echo json_encode(__PC_CUSTOMER__); ?>;
     var __PC_CUSTOMER_ADDRESS__ = <?php echo json_encode(__PC_CUSTOMER_ADDRESS__); ?>;
+    var __PC_CUSTOMER_ADDRESS_SHORT__ = <?php echo json_encode(__PC_CUSTOMER_ADDRESS_SHORT__); ?>;
     var __PC_CUSTOMER_CONTACT__ = <?php echo json_encode(__PC_CUSTOMER_CONTACT__); ?>;
+
 	var __SYNC__ = <?php echo json_encode(__SYNC__); ?>;
 	var __SYNC_PORT__ = <?php echo json_encode(__SYNC_PORT__); ?>;
 	var __HOSTNAME__ = <?php echo json_encode(__HOSTNAME__); ?>;
